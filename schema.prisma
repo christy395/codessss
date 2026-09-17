@@ -1,0 +1,17 @@
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client { provider = "prisma-client-js" }
+enum Role { USER ADMIN }
+enum BotStatus { ONLINE OFFLINE DEPLOYING CRASHED }
+enum NodeStatus { ONLINE OFFLINE MAINTENANCE }
+model User { id String @id @default(cuid()) email String @unique passwordHash String role Role @default(USER) emailVerifiedAt DateTime? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt bots Bot[] sessions Session[] subscriptions Subscription[] auditLogs AuditLog[] }
+model Bot { id String @id @default(cuid()) userId String user User @relation(fields:[userId],references:[id],onDelete:Cascade) name String runtime String startupCommand String? status BotStatus @default(OFFLINE) nodeId String? node Server? containerId String? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt files BotFile[] env EnvironmentVariable[] deployments Deployment[] logs Log[] metrics UsageMetric[] @@index([userId,status]) @@index([nodeId,status]) }
+model BotFile { id String @id @default(cuid()) botId String bot Bot @relation(fields:[botId],references:[id],onDelete:Cascade) path String size Int @default(0) storageKey String createdAt DateTime @default(now()) updatedAt DateTime @updatedAt @@unique([botId,path]) }
+model EnvironmentVariable { id String @id @default(cuid()) botId String bot Bot @relation(fields:[botId],references:[id],onDelete:Cascade) key String encryptedValue String createdAt DateTime @default(now()) updatedAt DateTime @updatedAt @@unique([botId,key]) }
+model Deployment { id String @id @default(cuid()) botId String bot Bot @relation(fields:[botId],references:[id],onDelete:Cascade) status String createdAt DateTime @default(now()) finishedAt DateTime? error String? }
+model Server { id String @id @default(cuid()) name String @unique hostname String status NodeStatus @default(OFFLINE) cpu Float @default(0) ram Float @default(0) storage Float @default(0) capacity Int @default(20) bots Bot[] createdAt DateTime @default(now()) updatedAt DateTime @updatedAt }
+model Plan { id String @id @default(cuid()) name String uniqueKey String @unique priceCents Int bots Int ramMb Int storageMb Int }
+model Subscription { id String @id @default(cuid()) userId String planId String status String @default("active") provider String? providerRef String? currentPeriodEnd DateTime? user User @relation(fields:[userId],references:[id],onDelete:Cascade) plan Plan @relation(fields:[planId],references:[id]) @@index([userId,status]) }
+model UsageMetric { id String @id @default(cuid()) botId String bot Bot @relation(fields:[botId],references:[id],onDelete:Cascade) cpu Float ram Float network Float recordedAt DateTime @default(now()) @@index([botId,recordedAt]) }
+model Log { id String @id @default(cuid()) botId String bot Bot @relation(fields:[botId],references:[id],onDelete:Cascade) level String message String createdAt DateTime @default(now()) @@index([botId,createdAt]) }
+model AuditLog { id String @id @default(cuid()) userId String? user User? @relation(fields:[userId],references:[id],onDelete:SetNull) action String target String? metadata Json? createdAt DateTime @default(now()) @@index([createdAt]) }
+model Session { id String @id @default(cuid()) userId String user User @relation(fields:[userId],references:[id],onDelete:Cascade) tokenHash String @unique expiresAt DateTime createdAt DateTime @default(now()) @@index([userId,expiresAt]) }

@@ -1,0 +1,1 @@
+{"name":"botvault-node-agent","version":"2.0.0","private":true,"type":"module","scripts":{"start":"node src/server.js"},"dependencies":{"@aws-sdk/client-s3":"latest","dockerode":"latest","express":"latest","ws":"latest","jose":"latest"},"devDependencies":{}}

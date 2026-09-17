@@ -1,0 +1,6 @@
+import {S3Client,PutObjectCommand,GetObjectCommand,DeleteObjectCommand} from '@aws-sdk/client-s3';
+const bucket=()=>process.env.S3_BUCKET||''; const client=()=>new S3Client({region:process.env.S3_REGION||'auto',endpoint:process.env.S3_ENDPOINT||undefined,forcePathStyle:process.env.S3_FORCE_PATH_STYLE==='true',credentials:{accessKeyId:process.env.S3_ACCESS_KEY_ID||'',secretAccessKey:process.env.S3_SECRET_ACCESS_KEY||''}});
+export function safePath(p:string){const x=p.replaceAll('\\','/').replace(/^\/+/, '');if(!x||x.includes('..')||x.split('/').some(s=>!s||s==='.'||s==='..'))throw new Error('Invalid path');return x;}
+export async function putFile(key:string,data:Buffer,contentType='application/octet-stream'){if(!bucket())throw new Error('Object storage is not configured');await client().send(new PutObjectCommand({Bucket:bucket(),Key:key,Body:data,ContentType:contentType}));}
+export async function getFile(key:string){if(!bucket())throw new Error('Object storage is not configured');const x=await client().send(new GetObjectCommand({Bucket:bucket(),Key:key}));return x.Body?Buffer.from(await x.Body.transformToByteArray()):Buffer.alloc(0);}
+export async function deleteFile(key:string){if(!bucket())throw new Error('Object storage is not configured');await client().send(new DeleteObjectCommand({Bucket:bucket(),Key:key}));}

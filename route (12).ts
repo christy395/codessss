@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server'; import {requireAdmin} from '../../../../lib/auth'; import {db} from '../../../../lib/db';
+export async function GET(){try{await requireAdmin();const users=await db.user.findMany({select:{id:true,email:true,role:true,createdAt:true,_count:{select:{bots:true}}},orderBy:{createdAt:'desc'}});return NextResponse.json({users});}catch(e){return NextResponse.json({error:e instanceof Error&&e.message==='FORBIDDEN'?'Forbidden':'Unauthorized'},{status:e instanceof Error&&e.message==='FORBIDDEN'?403:401});}}

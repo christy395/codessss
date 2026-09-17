@@ -1,0 +1,5 @@
+export type Bot={id:string;name:string;runtime:'Node.js'|'Python';status:'online'|'offline'|'deploying'|'crashed';uptime:number;cpu:number;ram:number;storage:number;restartCount:number;createdAt:string};
+let bots:Bot[]=[{id:'bot_7f3a',name:'AstraBot',runtime:'Python',status:'online',uptime:99.98,cpu:18,ram:42,storage:31,restartCount:2,createdAt:'2026-08-29'}];
+export function listBots(){return bots}
+export function createBot(name:string,runtime:'Node.js'|'Python'){const bot:Bot={id:'bot_'+Math.random().toString(36).slice(2,8),name,runtime,status:'deploying',uptime:0,cpu:0,ram:0,storage:0,restartCount:0,createdAt:new Date().toISOString().slice(0,10)};bots=[bot,...bots];return bot}
+export function actionBot(id:string,action:'start'|'stop'|'restart'){const b=bots.find(x=>x.id===id);if(!b) return null;if(action==='stop'){b.status='offline';b.cpu=0;b.ram=0} else {b.status='online';b.cpu=12+Math.floor(Math.random()*20);b.ram=35+Math.floor(Math.random()*25);if(action==='restart')b.restartCount++}return b}

@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'; import {z} from 'zod'; import {requireAdmin} from '../../../../lib/auth'; import {db} from '../../../../lib/db';
+const schema=z.object({name:z.string().min(1).max(80),hostname:z.string().min(1).max(255),capacity:z.number().int().positive().max(1000).default(20)});
+export async function GET(){try{await requireAdmin();return NextResponse.json({nodes:await db.server.findMany({include:{_count:{select:{bots:true}}},orderBy:{createdAt:'desc'}})});}catch(e){return NextResponse.json({error:'Forbidden'},{status:403});}}
+export async function POST(r:Request){try{const u=await requireAdmin();const b=schema.parse(await r.json());const n=await db.server.create({data:{name:b.name,hostname:b.hostname,capacity:b.capacity}});await db.auditLog.create({data:{userId:u.id,action:'node.create',target:n.id}});return NextResponse.json({node:n},{status:201});}catch{return NextResponse.json({error:'Invalid node'},{status:400});}}
