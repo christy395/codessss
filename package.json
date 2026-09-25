@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "latest",
-    "@prisma/client": "latest",
+    "@prisma/client": "7.10.0",
     "bcryptjs": "latest",
     "jose": "latest",
     "lucide-react": "latest",
@@ -30,7 +30,7 @@
     "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
-    "prisma": "latest",
+    "prisma": "7.10.0",
     "tsx": "latest",
     "typescript": "latest"
   }
