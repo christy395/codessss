@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -40,23 +39,23 @@ model User {
 }
 
 model Bot {
-  id           String              @id @default(cuid())
-  userId       String
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name         String
-  runtime      String
+  id             String                @id @default(cuid())
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  runtime        String
   startupCommand String?
-  status       BotStatus           @default(OFFLINE)
-  nodeId       String?
-  node         Server?
-  containerId  String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  files        BotFile[]
-  env          EnvironmentVariable[]
-  deployments  Deployment[]
-  logs         Log[]
-  metrics      UsageMetric[]
+  status         BotStatus             @default(OFFLINE)
+  nodeId         String?
+  node           Server?               @relation(fields: [nodeId], references: [id])
+  containerId    String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  files          BotFile[]
+  env            EnvironmentVariable[]
+  deployments    Deployment[]
+  logs           Log[]
+  metrics        UsageMetric[]
 
   @@index([userId, status])
   @@index([nodeId, status])
@@ -112,26 +111,26 @@ model Server {
 }
 
 model Plan {
-  id         String         @id @default(cuid())
-  name       String
-  uniqueKey  String         @unique
-  priceCents Int
-  bots       Int
-  ramMb      Int
-  storageMb  Int
+  id            String         @id @default(cuid())
+  name          String
+  uniqueKey     String         @unique
+  priceCents    Int
+  bots          Int
+  ramMb         Int
+  storageMb     Int
   subscriptions Subscription[]
 }
 
 model Subscription {
-  id                String   @id @default(cuid())
-  userId            String
-  planId            String
-  status            String   @default("active")
-  provider          String?
-  providerRef       String?
-  currentPeriodEnd  DateTime?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan              Plan     @relation(fields: [planId], references: [id])
+  id               String   @id @default(cuid())
+  userId           String
+  planId           String
+  status           String   @default("active")
+  provider         String?
+  providerRef      String?
+  currentPeriodEnd DateTime?
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             Plan     @relation(fields: [planId], references: [id])
 
   @@index([userId, status])
 }
